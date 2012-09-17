@@ -25,15 +25,35 @@ when "debian", "ubuntu"
   package erlpkg
   package "erlang-dev"
 when "redhat", "centos", "scientific"
-  include_recipe "yum::epel"
-  yum_repository "erlang" do
-    name "EPELErlangrepo"
-    url "http://repos.fedorapeople.org/repos/peter/erlang/epel-5Server/$basearch"
-    description "Updated erlang yum repository for RedHat / Centos 5.x - #{node['kernel']['machine']}"
-    action :add
-    only_if { node[:platform_version].to_f >= 5.0 && node[:platform_version].to_f < 6.0 }
+  if node[:erlang][:manual_compile]
+    remote_file "/usr/local/src/erlang#{node[:erlang][:version]}.tar.gz" do
+      source "http://www.erlang.org/download/otp_src_#{node[:erlang][:version]}.tar.gz"
+      checksum "099b35910e635b9148ac90f70fd9dd592920ed02406eb26c349efd8d1e959b6e"
+      notifies :run, "bash[install_erlang]"
+    end
+    
+    bash "install_erlang" do
+      user "root"
+      cwd "/usr/local/src"
+      code <<-EOH
+      tar -zxf erlang#{node[:erlang][:version]}.tar.gz
+      cd erlang#{node[:erlang][:version]}/
+      sed -i '37,40s/^/\/\//' erts/include/internal/pthread/ethr_event.h
+      sed -i '43s/^/\/\//' erts/include/internal/pthread/ethr_event.h
+      (./configure && make install && ln -s /usr/local/bin/erl /bin/erl)
+      EOH
+    end
+  else
+    include_recipe "yum::epel"
+    yum_repository "erlang" do
+      name "EPELErlangrepo"
+      url "http://repos.fedorapeople.org/repos/peter/erlang/epel-5Server/$basearch"
+      description "Updated erlang yum repository for RedHat / Centos 5.x - #{node['kernel']['machine']}"
+      action :add
+      only_if { node[:platform_version].to_f >= 5.0 && node[:platform_version].to_f < 6.0 }
+      package "erlang"
+    end
   end
-  package "erlang"
 else
   package "erlang"
 end

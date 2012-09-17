@@ -31,6 +31,8 @@ Attributes
 
 * `node['erlang']['gui_tools']` - whether to install the GUI tools for
   Erlang.
+* `node['erlang']['version'] - Version of erlang to compile.
+* `node['erlang']['manual_compile']` - whether to compile erlang from source.
 
 Recipes
 =======
