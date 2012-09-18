@@ -38,7 +38,7 @@ when "redhat", "centos", "scientific"
       code <<-EOH
       tar -zxf otp_src_#{node[:erlang][:version]}.tar.gz
       cd otp_src_#{node[:erlang][:version]}/
-      sed -i 's/defined(FUTEX_WAIT_PRIVATE) && defined(FUTEX_WAKE_PRIVATE)/false/' erts/include/internal/pthread/ethr_event.h
+      sed -i 's/\(defined(FUTEX_WAIT_PRIVATE) && defined(FUTEX_WAKE_PRIVATE)\)/false \/\/\1/' erts/include/internal/pthread/ethr_event.h
       (./configure && make install && ln -s /usr/local/bin/erl /bin/erl)
       EOH
       action :nothing
