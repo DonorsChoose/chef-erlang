@@ -29,7 +29,6 @@ when "redhat", "centos", "scientific"
     remote_file "/usr/local/src/otp_src_#{node[:erlang][:version]}.tar.gz" do
       source "http://www.erlang.org/download/otp_src_#{node[:erlang][:version]}.tar.gz"
       action :create_if_missing
-      notifies :run, "bash[install_erlang]", :immediately
     end
     
     bash "install_erlang" do
@@ -41,7 +40,6 @@ when "redhat", "centos", "scientific"
       sed -i 's/\(defined(FUTEX_WAIT_PRIVATE) && defined(FUTEX_WAKE_PRIVATE)\)/false \/\/\1/' erts/include/internal/pthread/ethr_event.h
       (./configure && make install && ln -s /usr/local/bin/erl /bin/erl)
       EOH
-      action :nothing
     end
   else
     include_recipe "yum::epel"
